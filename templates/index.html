@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cyber Risk Intelligence Platform</title>
+</head>
+
+<body>
+
+<h2>Cyber Risk Intelligence Platform</h2>
+
+<form method="post">
+
+<label>Target IP:</label>
+<input type="text" name="ip" required>
+<br><br>
+
+<label>Email:</label>
+<input type="text" name="email" required>
+<br><br>
+
+<h3>Phishing Awareness Test</h3>
+
+<p>You receive an email saying your bank account is locked and asks you to click a link to verify.</p>
+
+<label>What will you do?</label>
+<br>
+
+<input type="radio" name="phishing" value="click" required> Click the link<br>
+<input type="radio" name="phishing" value="ignore"> Ignore the email<br>
+
+<br>
+
+<input type="submit" value="Analyze Risk">
+
+</form>
+
+{% if result %}
+
+<h3>Cyber Risk Report</h3>
+
+<p><b>Open Ports:</b> {{ result.ports }}</p>
+<p><b>Email Breach:</b> {{ result.breach }}</p>
+<p><b>Phishing Behaviour:</b> {{ result.phishing }}</p>
+<p><b>Cyber Risk Score:</b> {{ result.score }}</p>
+
+{% endif %}
+
+</body>
+</html>
