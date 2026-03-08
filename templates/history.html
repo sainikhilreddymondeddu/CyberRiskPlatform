@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Scan History</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<style>
+
+body{
+background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
+color:white;
+font-family:'Segoe UI',Arial;
+}
+
+h2{
+text-align:center;
+margin-top:40px;
+margin-bottom:40px;
+color:#38bdf8;
+}
+
+.history-box{
+background:linear-gradient(145deg,#0f172a,#1e293b);
+padding:35px;
+border-radius:16px;
+box-shadow:0 10px 35px rgba(0,0,0,0.6);
+border:1px solid rgba(255,255,255,0.05);
+}
+
+thead{
+color:#38bdf8;
+}
+
+tbody tr:hover{
+background:#1e293b;
+}
+
+.low{color:#4ade80;font-weight:600;}
+.medium{color:#38bdf8;font-weight:600;}
+.high{color:#facc15;font-weight:600;}
+.critical{color:#ef4444;font-weight:600;}
+
+.btn-home{
+margin-top:30px;
+background:linear-gradient(90deg,#38bdf8,#0ea5e9);
+border:none;
+padding:10px 25px;
+font-weight:600;
+color:#021018;
+}
+
+.btn-download{
+background:#22c55e;
+border:none;
+font-weight:600;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Scan History</h2>
+
+<div class="history-box">
+
+<table class="table table-dark table-hover">
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Target</th>
+<th>Risk Score</th>
+<th>Threat</th>
+<th>Ports</th>
+<th>Breach</th>
+<th>Phishing</th>
+<th>Time</th>
+<th>Report</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for scan in history %}
+
+<tr>
+
+<td>{{scan[0]}}</td>
+<td>{{scan[1]}}</td>
+<td>{{scan[2]}}</td>
+
+<td class="{{scan[3]|lower}}">
+{{scan[3]}}
+</td>
+
+<td>{{scan[4]}}</td>
+<td>{{scan[5]}}</td>
+<td>{{scan[6]}}</td>
+<td>{{scan[7]}}</td>
+
+<td>
+
+<a href="/download-report/{{scan[0]}}" class="btn btn-download btn-sm">
+Download
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+<div class="text-center">
+
+<a href="/" class="btn btn-home">
+Back to Home
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

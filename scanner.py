@@ -1,77 +1,75 @@
-# port_info.py
+import subprocess
+import xml.etree.ElementTree as ET
 
-COMMON_PORTS = {
-
-21: ("FTP", "FTP may allow attackers to access or upload files if anonymous login or weak credentials are enabled.", "medium"),
-
-22: ("SSH", "SSH brute-force attacks may allow attackers to gain remote shell access.", "medium"),
-
-23: ("Telnet", "Telnet transmits data without encryption and can expose credentials.", "high"),
-
-25: ("SMTP", "Mail servers may allow spam relays or email spoofing if misconfigured.", "medium"),
-
-53: ("DNS", "DNS services may allow cache poisoning or information disclosure.", "medium"),
-
-80: ("HTTP", "Web servers may expose vulnerabilities like XSS, directory traversal, or outdated software.", "medium"),
-
-110: ("POP3", "POP3 mail services may expose credentials if not secured.", "medium"),
-
-135: ("RPC", "RPC service may expose Windows services that attackers can exploit remotely.", "high"),
-
-137: ("NetBIOS Name Service", "NetBIOS name service may leak system information.", "medium"),
-
-139: ("NetBIOS Session", "NetBIOS session service may allow unauthorized file access.", "high"),
-
-143: ("IMAP", "IMAP services may expose mail authentication vulnerabilities.", "medium"),
-
-443: ("HTTPS", "HTTPS services may expose vulnerabilities if TLS or web server configuration is weak.", "medium"),
-
-445: ("SMB", "SMB vulnerabilities like EternalBlue may allow ransomware attacks.", "critical"),
-
-3306: ("MySQL", "Open MySQL databases may allow unauthorized database access.", "high"),
-
-3389: ("RDP", "Remote Desktop services may allow brute-force login attacks.", "high"),
-
-8080: ("HTTP-Alt", "Alternative web server ports may expose web applications or admin panels.", "medium"),
-
-5900: ("VNC", "VNC remote desktop services may allow unauthorized remote control.", "high")
-
-}
-
-
-import nmap
 from port_info import get_port_info
+from cve_info import get_cve_info
 
 
-def scan_target(target_ip):
-
-    nm = nmap.PortScanner()
-
-    print("Scanning target:", target_ip)
-
-    nm.scan(hosts=target_ip, arguments='-sT')
+def scan_target(target):
 
     ports = []
 
-    if target_ip in nm.all_hosts():
+    try:
 
-        for proto in nm[target_ip].all_protocols():
+        command = [
+            "nmap",
+            "-sS",
+            "-sV",
+            "-T4",
+            "--top-ports",
+            "1000",
+            "-oX",
+            "-",
+            target
+        ]
 
-            for port in nm[target_ip][proto].keys():
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True
+        )
 
-                state = nm[target_ip][proto][port]['state']
+        xml_output = result.stdout
+        root = ET.fromstring(xml_output)
 
-                if state == "open":
+        for port in root.findall(".//port"):
 
-                    service_name = nm[target_ip][proto][port]['name']
+            port_id = int(port.attrib["portid"])
 
-                    info = get_port_info(port, service_name)
+            state = port.find("state").attrib["state"]
 
-                    ports.append({
-                        "port": port,
-                        "service": info["service"],
-                        "risk": info["risk"],
-                        "severity": info["severity"]
-                    })
+            if state != "open":
+                continue
+
+            service = port.find("service")
+
+            service_name = service.attrib.get("name", "unknown")
+            product = service.attrib.get("product", "")
+            version = service.attrib.get("version", "")
+
+            server = ""
+
+            if product or version:
+                server = f"{product} {version}".strip()
+
+            info = get_port_info(port_id, service_name)
+
+            cves = get_cve_info(service_name)
+
+            ports.append({
+                "port": port_id,
+                "service": service_name.upper(),
+                "server": server,
+                "category": info["category"],
+                "risk": info["risk"],
+                "attacks": info["attacks"],
+                "recommendation": info["recommendation"],
+                "severity": info["severity"],
+                "cves": cves
+            })
+
+    except Exception as e:
+
+        print("Scan error:", e)
 
     return ports

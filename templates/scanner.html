@@ -76,6 +76,42 @@ border:none;
 font-weight:600;
 }
 
+/* LOADING OVERLAY */
+
+.loading-screen{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#020617;
+z-index:1000;
+text-align:center;
+padding-top:200px;
+}
+
+.spinner{
+border:6px solid #1e293b;
+border-top:6px solid #38bdf8;
+border-radius:50%;
+width:60px;
+height:60px;
+animation:spin 1s linear infinite;
+margin:auto;
+margin-top:30px;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+.loading-text{
+color:#38bdf8;
+font-size:20px;
+}
+
 </style>
 
 </head>
@@ -92,7 +128,7 @@ font-weight:600;
 
 <div class="card">
 
-<form method="POST">
+<form method="POST" onsubmit="showLoading()">
 
 <label>Target IP</label>
 
@@ -169,6 +205,23 @@ Run Security Scan
 
 </div>
 
+<!-- LOADING SCREEN -->
+
+<div id="loading" class="loading-screen">
+
+<div class="loading-text">
+
+Scanning network ports...<br>
+Detecting services...<br>
+Analyzing vulnerabilities...<br>
+Generating security report...
+
+</div>
+
+<div class="spinner"></div>
+
+</div>
+
 <script>
 
 function detectIP(){
@@ -178,6 +231,12 @@ fetch("/get-ip")
 .then(data => {
 document.getElementById("ipField").value = data.ip
 })
+
+}
+
+function showLoading(){
+
+document.getElementById("loading").style.display="block"
 
 }
 

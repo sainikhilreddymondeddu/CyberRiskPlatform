@@ -1,62 +1,211 @@
 # port_info.py
 
-COMMON_PORTS = {
+PORT_INTELLIGENCE = {
 
-21: ("FTP", "FTP may allow attackers to access or upload files if anonymous login or weak credentials are enabled.", "medium"),
+    21: {
+        "service": "FTP",
+        "category": "File Transfer Service",
+        "risk": "FTP may allow attackers to access or upload files if anonymous login or weak credentials are enabled.",
+        "attacks": [
+            "Anonymous Login Abuse",
+            "Credential Brute Force",
+            "FTP Bounce Attack"
+        ],
+        "recommendation": [
+            "Disable anonymous FTP login",
+            "Use SFTP instead of FTP",
+            "Restrict FTP access via firewall"
+        ],
+        "severity": "medium"
+    },
 
-22: ("SSH", "SSH brute-force attacks may allow attackers to gain remote shell access.", "medium"),
+    22: {
+        "service": "SSH",
+        "category": "Remote Access Service",
+        "risk": "SSH brute-force attacks may allow attackers to gain remote shell access.",
+        "attacks": [
+            "Brute Force Login",
+            "Credential Stuffing",
+            "Key Theft Attacks"
+        ],
+        "recommendation": [
+            "Disable password login and use SSH keys",
+            "Change default SSH port",
+            "Enable fail2ban or brute-force protection"
+        ],
+        "severity": "medium"
+    },
 
-23: ("Telnet", "Telnet transmits data without encryption and can expose credentials.", "high"),
+    23: {
+        "service": "Telnet",
+        "category": "Remote Access Service",
+        "risk": "Telnet transmits credentials without encryption and attackers can intercept them.",
+        "attacks": [
+            "Credential Sniffing",
+            "Session Hijacking"
+        ],
+        "recommendation": [
+            "Disable Telnet completely",
+            "Replace Telnet with SSH",
+            "Block port 23 on firewall"
+        ],
+        "severity": "high"
+    },
 
-25: ("SMTP", "Mail servers may allow spam relays or email spoofing if misconfigured.", "medium"),
+    25: {
+        "service": "SMTP",
+        "category": "Email Service",
+        "risk": "Mail servers may allow spam relays or email spoofing if misconfigured.",
+        "attacks": [
+            "Spam Relay Abuse",
+            "Email Spoofing",
+            "Phishing Infrastructure"
+        ],
+        "recommendation": [
+            "Disable open mail relay",
+            "Enable SPF, DKIM and DMARC",
+            "Restrict SMTP access externally"
+        ],
+        "severity": "medium"
+    },
 
-53: ("DNS", "DNS services may allow cache poisoning or information disclosure.", "medium"),
+    53: {
+        "service": "DNS",
+        "category": "Domain Name Service",
+        "risk": "DNS services may allow cache poisoning or amplification attacks.",
+        "attacks": [
+            "DNS Cache Poisoning",
+            "DNS Amplification DDoS"
+        ],
+        "recommendation": [
+            "Disable recursive queries for external users",
+            "Implement DNSSEC",
+            "Rate limit DNS queries"
+        ],
+        "severity": "medium"
+    },
 
-80: ("HTTP", "Web servers may expose vulnerabilities like XSS, directory traversal, or outdated software.", "medium"),
+    80: {
+        "service": "HTTP",
+        "category": "Web Service",
+        "risk": "Web servers may expose vulnerabilities like XSS, directory traversal, or outdated CMS exploits.",
+        "attacks": [
+            "Cross-Site Scripting (XSS)",
+            "SQL Injection",
+            "Directory Traversal"
+        ],
+        "recommendation": [
+            "Keep web server software updated",
+            "Deploy Web Application Firewall (WAF)",
+            "Disable unnecessary directories and modules"
+        ],
+        "severity": "medium"
+    },
 
-110: ("POP3", "POP3 mail services may expose credentials if not secured.", "medium"),
+    135: {
+        "service": "RPC",
+        "category": "Windows Service",
+        "risk": "RPC services may expose Windows system services to remote exploitation.",
+        "attacks": [
+            "Remote Service Exploitation",
+            "Privilege Escalation"
+        ],
+        "recommendation": [
+            "Restrict RPC access via firewall",
+            "Disable unused Windows services",
+            "Keep system fully patched"
+        ],
+        "severity": "high"
+    },
 
-135: ("RPC", "RPC service may expose Windows services that attackers can exploit remotely.", "high"),
+    139: {
+        "service": "NetBIOS",
+        "category": "Windows Networking",
+        "risk": "NetBIOS sessions may expose shared resources and allow enumeration.",
+        "attacks": [
+            "Network Enumeration",
+            "SMB Relay Attacks"
+        ],
+        "recommendation": [
+            "Disable NetBIOS if not required",
+            "Block ports 137-139 on external networks",
+            "Restrict file sharing permissions"
+        ],
+        "severity": "high"
+    },
 
-137: ("NetBIOS Name Service", "NetBIOS name service may leak system information.", "medium"),
+    443: {
+        "service": "HTTPS",
+        "category": "Secure Web Service",
+        "risk": "HTTPS services may still be vulnerable due to weak TLS configuration or vulnerable applications.",
+        "attacks": [
+            "TLS Downgrade Attacks",
+            "Certificate Spoofing"
+        ],
+        "recommendation": [
+            "Use modern TLS versions (TLS 1.2+)",
+            "Disable weak ciphers",
+            "Renew and verify SSL certificates"
+        ],
+        "severity": "medium"
+    },
 
-139: ("NetBIOS Session", "NetBIOS session service may allow unauthorized file access.", "high"),
+    445: {
+        "service": "SMB",
+        "category": "Windows File Sharing",
+        "risk": "SMB vulnerabilities like EternalBlue may allow ransomware attacks.",
+        "attacks": [
+            "EternalBlue (WannaCry)",
+            "SMB Relay",
+            "NTLM Hash Theft"
+        ],
+        "recommendation": [
+            "Disable SMBv1",
+            "Block port 445 externally",
+            "Apply latest Windows security patches"
+        ],
+        "severity": "critical"
+    },
 
-143: ("IMAP", "IMAP services may expose mail authentication vulnerabilities.", "medium"),
-
-443: ("HTTPS", "HTTPS services may expose vulnerabilities if TLS or web server configuration is weak.", "medium"),
-
-445: ("SMB", "SMB vulnerabilities like EternalBlue may allow ransomware attacks.", "critical"),
-
-3306: ("MySQL", "Open MySQL databases may allow unauthorized database access.", "high"),
-
-3389: ("RDP", "Remote Desktop services may allow brute-force login attacks.", "high"),
-
-8080: ("HTTP-Alt", "Alternative web server ports may expose web applications or admin panels.", "medium"),
-
-5900: ("VNC", "VNC remote desktop services may allow unauthorized remote control.", "high")
+    3389: {
+        "service": "RDP",
+        "category": "Remote Desktop Service",
+        "risk": "RDP services may allow brute-force login attacks.",
+        "attacks": [
+            "Brute Force Login",
+            "BlueKeep Exploit"
+        ],
+        "recommendation": [
+            "Enable Network Level Authentication",
+            "Restrict RDP access via VPN",
+            "Use strong passwords and MFA"
+        ],
+        "severity": "high"
+    }
 
 }
 
 
 def get_port_info(port, service_name=None):
 
-    if port in COMMON_PORTS:
-        service, risk, severity = COMMON_PORTS[port]
+    if port in PORT_INTELLIGENCE:
+        info = PORT_INTELLIGENCE[port]
 
     else:
+        info = {
+            "service": service_name if service_name else "Unknown Service",
+            "category": "Unknown Service",
+            "risk": "Unknown service exposed. Open ports increase attack surface.",
+            "attacks": [
+                "Service Enumeration",
+                "Exploit Probing"
+            ],
+            "recommendation": [
+                "Close the port if unnecessary",
+                "Restrict access via firewall",
+                "Monitor service logs"
+            ],
+            "severity": "low"
+        }
 
-        service = service_name if service_name else "Unknown Service"
-
-        risk = (
-            "An unknown service is exposed on this port. "
-            "Open ports increase the attack surface and attackers may probe this service for vulnerabilities."
-        )
-
-        severity = "low"
-
-    return {
-        "service": service,
-        "risk": risk,
-        "severity": severity
-    }
+    return info
