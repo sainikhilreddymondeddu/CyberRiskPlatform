@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Cyber Dashboard</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+background:linear-gradient(135deg,#020617,#0f172a,#1e293b);
+color:white;
+font-family:Arial;
+}
+
+.navbar{
+border-bottom:1px solid #1e293b;
+}
+
+.card{
+background:#0f172a;
+border:none;
+border-radius:14px;
+padding:30px;
+margin-bottom:20px;
+}
+
+.metric{
+font-size:40px;
+color:#38bdf8;
+font-weight:bold;
+}
+
+.section-title{
+margin-bottom:30px;
+color:#38bdf8;
+}
+
+.btn-main{
+background:#38bdf8;
+border:none;
+padding:10px 25px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark">
+
+<div class="container">
+
+<h4>CyberRisk</h4>
+
+<div>
+
+<a class="text-white me-3" href="/">Home</a>
+<a class="text-white" href="/dashboard">Dashboard</a>
+
+</div>
+
+</div>
+
+</nav>
+
+<div class="container mt-5">
+
+<h2 class="text-center mb-5">Cyber Security Dashboard</h2>
+
+<!-- METRICS -->
+
+<div class="row">
+
+<div class="col-md-4">
+
+<div class="card text-center">
+
+<h5>Total Scans</h5>
+
+<div class="metric">12</div>
+
+</div>
+
+</div>
+
+
+<div class="col-md-4">
+
+<div class="card text-center">
+
+<h5>Threat Activity</h5>
+
+<div class="metric">37</div>
+
+</div>
+
+</div>
+
+
+<div class="col-md-4">
+
+<div class="card text-center">
+
+<h5>Risk Score</h5>
+
+<div class="metric">70</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- ACTION SECTION -->
+
+<div class="text-center mt-4">
+
+<a href="/scanner" class="btn btn-main">
+
+Run Security Scan
+
+</a>
+
+</div>
+
+<!-- CHART SECTION -->
+
+<div class="row mt-5">
+
+<div class="col-md-6">
+
+<div class="card">
+
+<h5 class="section-title">Risk Distribution</h5>
+
+<canvas id="riskChart"></canvas>
+
+</div>
+
+</div>
+
+
+<div class="col-md-6">
+
+<div class="card">
+
+<h5 class="section-title">Recent Activity</h5>
+
+<ul>
+
+<li>Port scan detected open services</li>
+
+<li>Email breach analysis completed</li>
+
+<li>Phishing behavior evaluated</li>
+
+<li>Cyber risk score generated</li>
+
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+var ctx = document.getElementById('riskChart');
+
+new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: ['Risk','Safe'],
+datasets: [{
+data: [70,30],
+backgroundColor:['red','green']
+}]
+}
+});
+
+</script>
+
+</body>
+
+</html>

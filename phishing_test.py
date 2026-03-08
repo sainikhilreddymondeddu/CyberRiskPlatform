@@ -1,6 +1,6 @@
-def phishing_behavior(answer):
+def phishing_behavior(choice):
 
-    if answer == "click":
+    if choice == "click":
         return "High Risk"
     else:
-        return "Safe"
+        return "Safe Behavior"

@@ -39,39 +39,24 @@ COMMON_PORTS = {
 }
 
 
-import nmap
-from port_info import get_port_info
+def get_port_info(port, service_name=None):
 
+    if port in COMMON_PORTS:
+        service, risk, severity = COMMON_PORTS[port]
 
-def scan_target(target_ip):
+    else:
 
-    nm = nmap.PortScanner()
+        service = service_name if service_name else "Unknown Service"
 
-    print("Scanning target:", target_ip)
+        risk = (
+            "An unknown service is exposed on this port. "
+            "Open ports increase the attack surface and attackers may probe this service for vulnerabilities."
+        )
 
-    nm.scan(hosts=target_ip, arguments='-sT')
+        severity = "low"
 
-    ports = []
-
-    if target_ip in nm.all_hosts():
-
-        for proto in nm[target_ip].all_protocols():
-
-            for port in nm[target_ip][proto].keys():
-
-                state = nm[target_ip][proto][port]['state']
-
-                if state == "open":
-
-                    service_name = nm[target_ip][proto][port]['name']
-
-                    info = get_port_info(port, service_name)
-
-                    ports.append({
-                        "port": port,
-                        "service": info["service"],
-                        "risk": info["risk"],
-                        "severity": info["severity"]
-                    })
-
-    return ports
+    return {
+        "service": service,
+        "risk": risk,
+        "severity": severity
+    }
