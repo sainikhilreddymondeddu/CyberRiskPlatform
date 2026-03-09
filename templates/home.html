@@ -99,6 +99,14 @@ text-align:center;
 border-top:1px solid #1e293b;
 }
 
+/* IP RESULT */
+
+.ip-box{
+margin-top:15px;
+font-size:18px;
+color:#38bdf8;
+}
+
 </style>
 
 </head>
@@ -113,12 +121,10 @@ border-top:1px solid #1e293b;
 
 <h4>CyberRisk</h4>
 
-<div>
-</div>
-
 </div>
 
 </nav>
+
 
 <!-- HERO SECTION -->
 
@@ -130,30 +136,45 @@ border-top:1px solid #1e293b;
 
 <h1 class="hero-title">
 
-Discover the Power of Cyber
+Cyber Risk Intelligence Platform
 
 </h1>
 
 <p class="hero-text">
 
-Our Cyber Risk Intelligence Platform helps monitor,
-analyze, and mitigate cybersecurity risks through
-vulnerability scanning, breach detection, and
-behavioral security analysis.
+Monitor system exposure, detect breached accounts,
+and simulate phishing attacks to evaluate cyber risk
+in real time.
 
 </p>
 
 <br>
 
 <a href="/scanner" class="btn btn-main">
+
 Run Security Scan
+
 </a>
 
 <a href="/history" class="btn btn-history">
-View Scan History
+
+Scan History
+
 </a>
 
+<br><br>
+
+<button class="btn btn-warning"
+onclick="detectIP()">
+
+Detect My IP
+
+</button>
+
+<div id="ipResult" class="ip-box"></div>
+
 </div>
+
 
 <div class="col-md-6 text-center">
 
@@ -166,37 +187,59 @@ style="width:100%;border-radius:15px">
 
 </div>
 
+
 <!-- FEATURE CARDS -->
+
 <div class="section">
+
 <div class="container">
 
 <div class="row text-center">
 
 <div class="col-md-4">
+
 <div class="card">
+
 <h4>Vulnerability Analysis</h4>
+
 <p>Detect exposed ports and services that attackers can exploit.</p>
-</div>
+
 </div>
 
+</div>
+
+
 <div class="col-md-4">
+
 <div class="card">
+
 <h4>Email Breach Detection</h4>
+
 <p>Check if an email address appears in known data breach leaks.</p>
+
 </div>
+
 </div>
+
 
 <div class="col-md-4">
+
 <div class="card">
+
 <h4>Phishing Behavior Analysis</h4>
+
 <p>Simulate phishing attacks to analyze user security awareness.</p>
+
 </div>
+
 </div>
 
 </div>
 
 </div>
+
 </div>
+
 
 <!-- FOOTER -->
 
@@ -206,9 +249,30 @@ style="width:100%;border-radius:15px">
 
 <p>Cybersecurity Monitoring & Risk Analysis System</p>
 
+<p>Developed by Mondeddu Sai Nikhil Reddy</p>
+
 <p>© 2026 CyberRisk Platform</p>
 
 </footer>
+
+<script>
+
+function detectIP(){
+
+fetch("/get-ip")
+
+.then(res => res.json())
+
+.then(data => {
+
+document.getElementById("ipResult").innerText =
+"Your Local IP Address: " + data.ip
+
+})
+
+}
+
+</script>
 
 </body>
 

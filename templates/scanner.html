@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>Run Cyber Security Scan</title>
@@ -12,10 +13,8 @@ href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 body{
 background: linear-gradient(135deg,#020617,#0f172a,#1e293b);
 color:#ffffff;
-font-family: 'Segoe UI', Arial;
+font-family:'Segoe UI',Arial;
 }
-
-/* Main Scan Card */
 
 .card{
 background: linear-gradient(145deg,#0f172a,#1e293b);
@@ -25,15 +24,10 @@ box-shadow:0 10px 35px rgba(0,0,0,0.6);
 border:1px solid rgba(255,255,255,0.05);
 }
 
-/* Labels */
-
 label{
 color:#38bdf8;
 font-weight:600;
-font-size:15px;
 }
-
-/* Inputs */
 
 input{
 background:#020617 !important;
@@ -41,19 +35,6 @@ color:#ffffff !important;
 border:1px solid #334155 !important;
 height:45px;
 }
-
-input:focus{
-border-color:#38bdf8 !important;
-box-shadow:none !important;
-}
-
-/* Radio text */
-
-.form-check-label{
-color:#ffffff;
-}
-
-/* Main Button */
 
 .btn-main{
 background: linear-gradient(90deg,#38bdf8,#0ea5e9);
@@ -64,42 +45,86 @@ border-radius:8px;
 color:#021018;
 }
 
-.btn-main:hover{
-background: linear-gradient(90deg,#0ea5e9,#38bdf8);
-}
+/* ATTACK STYLES */
 
-/* Detect IP button */
-
-.btn-warning{
-background:#facc15;
-border:none;
-font-weight:600;
-}
-
-/* LOADING OVERLAY */
-
-.loading-screen{
-display:none;
+#fullscreenAttack{
 position:fixed;
 top:0;
 left:0;
 width:100%;
 height:100%;
-background:#020617;
-z-index:1000;
-text-align:center;
-padding-top:200px;
+background:rgba(2,6,23,0.96);
+z-index:9999;
+display:none;
+justify-content:center;
+align-items:center;
 }
 
-.spinner{
+#popupAttack{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#0f172a;
+padding:30px;
+border-radius:12px;
+border:1px solid #334155;
+display:none;
+z-index:9999;
+}
+
+#bannerAttack{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+background:#7f1d1d;
+padding:15px;
+text-align:center;
+display:none;
+z-index:9999;
+}
+
+.attack-card{
+background:#0f172a;
+padding:40px;
+border-radius:12px;
+border:1px solid #334155;
+text-align:center;
+}
+
+.security-center{
+position:fixed;
+bottom:20px;
+right:20px;
+color:#94a3b8;
+cursor:pointer;
+}
+
+/* LOADING ANIMATION */
+
+#loadingOverlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(2,6,23,0.95);
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:99999;
+}
+
+.loader{
 border:6px solid #1e293b;
 border-top:6px solid #38bdf8;
 border-radius:50%;
 width:60px;
 height:60px;
 animation:spin 1s linear infinite;
-margin:auto;
-margin-top:30px;
+margin-bottom:20px;
 }
 
 @keyframes spin{
@@ -107,16 +132,103 @@ margin-top:30px;
 100%{transform:rotate(360deg);}
 }
 
-.loading-text{
-color:#38bdf8;
-font-size:20px;
-}
-
 </style>
 
 </head>
 
 <body>
+
+<!-- LOADING OVERLAY -->
+
+<div id="loadingOverlay">
+
+<div class="loader"></div>
+
+<h4>Scanning System Security...</h4>
+
+<p style="color:#94a3b8">
+Analyzing ports, breach intelligence and phishing behavior
+</p>
+
+</div>
+
+
+<!-- FULLSCREEN ATTACK -->
+
+<div id="fullscreenAttack">
+
+<div class="attack-card">
+
+<h4>{{ phishing.title }}</h4>
+
+<p>{{ phishing.message }}</p>
+
+<button class="btn btn-danger"
+onclick="setAction('enter_credentials')">
+
+Continue
+
+</button>
+
+<button class="btn btn-secondary"
+onclick="setAction('close_page')">
+
+Close
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- POPUP ATTACK -->
+
+<div id="popupAttack">
+
+<h4>{{ phishing.title }}</h4>
+
+<p>{{ phishing.message }}</p>
+
+<button class="btn btn-danger"
+onclick="setAction('enter_credentials')">
+
+Open
+
+</button>
+
+<button class="btn btn-secondary"
+onclick="setAction('close_page')">
+
+Dismiss
+
+</button>
+
+</div>
+
+
+<!-- BANNER ATTACK -->
+
+<div id="bannerAttack">
+
+<strong>{{ phishing.title }}</strong> — {{ phishing.message }}
+
+<button class="btn btn-light btn-sm ms-3"
+onclick="setAction('enter_credentials')">
+
+Verify
+
+</button>
+
+<button class="btn btn-dark btn-sm ms-2"
+onclick="setAction('close_page')">
+
+Ignore
+
+</button>
+
+</div>
+
 
 <div class="container mt-5">
 
@@ -128,29 +240,20 @@ font-size:20px;
 
 <div class="card">
 
-<form method="POST" onsubmit="showLoading()">
+<form method="POST" onsubmit="showLoader()">
+
+<input type="hidden"
+id="phishing_action"
+name="phishing_action"
+value="ignore_email">
 
 <label>Target IP</label>
 
-<div class="input-group mb-3">
-
 <input type="text"
 name="ip"
-id="ipField"
-class="form-control"
+class="form-control mb-3"
 value="{{ip}}"
 required>
-
-<button type="button"
-class="btn btn-warning"
-onclick="detectIP()">
-
-Detect My IP
-
-</button>
-
-</div>
-
 
 <label>Email (for breach check)</label>
 
@@ -159,40 +262,10 @@ name="email"
 class="form-control mb-3"
 required>
 
-
-<label>Phishing Simulation</label>
-
-<div class="form-check">
-
-<input class="form-check-input"
-type="radio"
-name="phishing"
-value="click"
-required>
-
-<label class="form-check-label">
-Click suspicious link
-</label>
-
-</div>
-
-<div class="form-check">
-
-<input class="form-check-input"
-type="radio"
-name="phishing"
-value="ignore">
-
-<label class="form-check-label">
-Ignore email
-</label>
-
-</div>
-
-<br>
-
 <button class="btn btn-main">
+
 Run Security Scan
+
 </button>
 
 </form>
@@ -205,38 +278,101 @@ Run Security Scan
 
 </div>
 
-<!-- LOADING SCREEN -->
 
-<div id="loading" class="loading-screen">
+<div class="security-center"
+id="securityCenter"
+onclick="reportPhishing()">
 
-<div class="loading-text">
-
-Scanning network ports...<br>
-Detecting services...<br>
-Analyzing vulnerabilities...<br>
-Generating security report...
+🔐 Security Center
 
 </div>
 
-<div class="spinner"></div>
+
+<div id="reportMessage"
+style="display:none;
+position:fixed;
+bottom:70px;
+right:20px;
+background:#16a34a;
+padding:12px 18px;
+border-radius:6px;
+color:white;
+font-size:14px;">
+
+✔ Phishing attack reported to Security Center
 
 </div>
+
 
 <script>
 
-function detectIP(){
+let phishingDecision = null
+let style = "{{ phishing.style }}"
 
-fetch("/get-ip")
-.then(res => res.json())
-.then(data => {
-document.getElementById("ipField").value = data.ip
-})
+function showLoader(){
+
+document.getElementById("loadingOverlay").style.display="flex"
 
 }
 
-function showLoading(){
+function setAction(action){
 
-document.getElementById("loading").style.display="block"
+if(phishingDecision === "enter_credentials") return
+
+document.getElementById("phishing_action").value = action
+
+phishingDecision = action
+
+hideAll()
+
+if(action === "enter_credentials"){
+document.getElementById("securityCenter").style.pointerEvents="none"
+}
+
+if(action === "close_page"){
+document.getElementById("securityCenter").style.pointerEvents="auto"
+}
+
+}
+
+function reportPhishing(){
+
+if(phishingDecision === "enter_credentials") return
+
+document.getElementById("phishing_action").value="report_phishing"
+
+phishingDecision="report_phishing"
+
+document.getElementById("reportMessage").style.display="block"
+
+document.getElementById("securityCenter").style.pointerEvents="none"
+
+}
+
+function hideAll(){
+
+document.getElementById("fullscreenAttack").style.display="none"
+document.getElementById("popupAttack").style.display="none"
+document.getElementById("bannerAttack").style.display="none"
+
+}
+
+window.onload = function(){
+
+let delay = Math.floor(Math.random()*4000)+2000
+
+setTimeout(function(){
+
+if(style==="fullscreen")
+document.getElementById("fullscreenAttack").style.display="flex"
+
+if(style==="popup")
+document.getElementById("popupAttack").style.display="block"
+
+if(style==="banner")
+document.getElementById("bannerAttack").style.display="block"
+
+},delay)
 
 }
 

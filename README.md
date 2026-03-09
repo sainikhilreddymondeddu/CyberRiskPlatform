@@ -1,125 +1,162 @@
 # Cyber Risk Intelligence Platform
 
-A cybersecurity analysis platform that evaluates system security risks using **network scanning, email breach detection, and phishing behavior analysis**.
+A web-based cybersecurity assessment tool that analyzes system exposure, detects breached accounts, and evaluates phishing awareness to generate a comprehensive cyber risk score.
 
-The platform scans open ports using **Nmap**, checks whether an email has appeared in known **data breaches**, and simulates **phishing behavior** to generate a **Cyber Risk Score** along with a detailed security report.
+Developed by **Mondeddu Sai Nikhil Reddy**
 
 ---
 
 ## Overview
 
-Modern cyberattacks occur not only due to technical vulnerabilities but also because of **human errors**, such as clicking phishing links or exposing credentials. Traditional security tools focus mainly on system vulnerabilities and often ignore human behavior.
+The **Cyber Risk Intelligence Platform** simulates a real-world cyber risk evaluation system.  
+It combines **technical vulnerability analysis** with **human behavior analysis** to measure overall cybersecurity risk.
 
-This project combines both approaches by analyzing:
+The platform performs:
 
-- Network vulnerabilities
-- Data breach exposure
-- User phishing behavior
+- Network port scanning
+- Email breach detection
+- Phishing awareness simulation
+- Cyber risk scoring
+- Security report generation
+- Scan history tracking
 
-The result is a **Cyber Risk Score** and a **detailed vulnerability report**.
+This project demonstrates how organizations can combine **technical vulnerabilities and human behavior risks** to evaluate cybersecurity posture.
 
 ---
 
-## Features
+## Key Features
 
-- Network port scanning using **Nmap**
-- Detection of open ports and exposed services
-- Risk explanation for detected ports
-- Email breach detection using public breach databases
-- Phishing behavior simulation
-- Cyber Risk Score calculation
-- Interactive cybersecurity report dashboard
+### Network Port Scanning
+The platform scans a target system to identify open ports and exposed services. Each detected service is analyzed for potential risks and common attack vectors.
+
+### Email Breach Detection
+Checks whether a provided email address appears in known data breach datasets and reports exposure risk.
+
+### Phishing Behavior Simulation
+Simulates phishing scenarios to evaluate user awareness and security behavior.
+
+### Cyber Risk Score
+Combines multiple factors such as:
+
+- Open ports
+- Service vulnerabilities
+- Email breach exposure
+- Phishing behavior
+
+to generate a unified **Cyber Risk Score**.
+
+### Security Report Generation
+After each scan, the system generates a detailed security report including:
+
+- Risk score
+- Threat level
+- Breach details
+- Phishing behavior result
+- Open ports and service risks
+
+Reports can also be downloaded as **PDF files**.
+
+### Scan History
+All scans are stored in a local database and displayed in a history dashboard where users can:
+
+- Review previous scans
+- Track risk levels
+- Download past reports
+
+---
+
+## System Architecture
+
+```
+User Interface (Flask Templates)
+        |
+Flask Web Server
+        |
+Security Modules
+    ├── Port Scanner
+    ├── Breach Detection
+    ├── Phishing Simulation
+    └── Risk Engine
+        |
+SQLite Database (Scan History)
+```
 
 ---
 
 ## Technologies Used
 
-**Backend**
+### Backend
 - Python
 - Flask
 
-**Security Tools**
-- Nmap
-- Python-Nmap
+### Security Tools
+- Nmap (for network scanning)
 
-**Frontend**
+### Frontend
 - HTML
 - CSS
 - Bootstrap
 
-**Other Libraries**
-- Requests
+### Database
+- SQLite
+
+### Reporting
+- ReportLab (PDF generation)
 
 ---
 
 ## Project Structure
 
 ```
-CyberRiskPlatform
+CyberRiskPlatform/
 │
-├── app.py                 # Main Flask application
-├── scanner.py             # Nmap scanning module
-├── port_info.py           # Port risk intelligence database
-├── breach_check.py        # Email breach detection
-├── phishing_test.py       # Phishing behavior simulation
-├── risk_engine.py         # Cyber risk score calculation
+├── app.py
+├── scanner.py
+├── breach_check.py
+├── phishing_engine.py
+├── risk_engine.py
+├── database.py
 │
-├── templates
-│   ├── home.html          # Landing page
-│   ├── scanner.html       # Scan input page
-│   └── report.html        # Security report dashboard
+├── templates/
+│   ├── home.html
+│   ├── scanner.html
+│   ├── report.html
+│   └── history.html
 │
-├── requirements.txt       # Project dependencies
-├── README.md              # Project documentation
-└── .gitignore
+├── scan_history.db
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
 ## Installation
 
-### 1. Clone the repository
+Clone the repository
 
-```bash
-git clone https://github.com/YOUR_USERNAME/CyberRiskPlatform.git
+```
+git clone https://github.com/yourusername/CyberRiskPlatform.git
+```
+
+Navigate to the project directory
+
+```
 cd CyberRiskPlatform
 ```
 
----
+Install dependencies
 
-### 2. Install dependencies
-
-```bash
+```
 pip install -r requirements.txt
 ```
 
-or
+Run the application
 
-```bash
-pip install flask python-nmap requests
 ```
-
----
-
-### 3. Install Nmap
-
-Download and install Nmap from:
-
-https://nmap.org/download.html
-
-Make sure the Nmap installation directory is added to your system **PATH**.
-
----
-
-## Running the Project
-
-Start the application:
-
-```bash
 python app.py
 ```
 
-Open your browser and go to:
+Open the browser and visit
 
 ```
 http://127.0.0.1:5000
@@ -129,83 +166,51 @@ http://127.0.0.1:5000
 
 ## How It Works
 
-1. The user enters:
-   - Target IP address
-   - Email address
-   - Phishing behavior selection
-
-2. The platform performs:
-   - **Port scanning using Nmap**
-   - **Email breach detection**
-   - **Phishing behavior analysis**
-
-3. The system generates:
-   - Cyber Risk Score
-   - Security report
-   - List of detected open ports with risk explanations
+1. User enters target IP and email.
+2. The system scans the target for open ports.
+3. Email breach status is checked.
+4. Phishing behavior is evaluated.
+5. Risk Engine calculates the Cyber Risk Score.
+6. A detailed report is generated.
+7. Scan results are stored in the database.
 
 ---
 
-## Example Report Output
-
-The generated security report includes:
-
-- Risk Score
-- Email Breach Status
-- Phishing Behavior Result
-- Target Scanned
-- Total Open Ports
-- Detected Ports with Risk Explanations
-
-Example:
+## Example Output
 
 ```
-Risk Score: 50
-
-Email Breach: False
-Phishing Behavior: Safe Behavior
-Target Scanned: 10.53.36.215
-Total Open Ports: 5
-
-Detected Ports
-Port 80 (HTTP)
-Risk: Web servers may expose vulnerabilities like XSS or outdated software.
-
-Port 135 (RPC)
-Risk: RPC services may allow attackers to exploit Windows services remotely.
+Target: 10.53.36.215
+Risk Score: 52
+Threat Level: MEDIUM
+Email Breach: True
+Phishing Behaviour: Safe Behavior
+Scan Duration: 8 seconds
+Detected Ports: 80, 135, 139, 445
 ```
 
 ---
 
-## Security Disclaimer
+## Educational Purpose
 
-This tool is created for **educational and research purposes only**.
+This project is intended for **educational and research purposes only**.
 
-Do not scan systems without proper authorization.
-
----
-
-## Version
-
-Current Release: **v1.0**
+Only scan systems that you **own or have permission to test**.
 
 ---
 
 ## Future Improvements
 
-Planned features for future versions:
+Possible enhancements include:
 
-- Risk distribution charts
-- Scan history storage
-- Exportable PDF security reports
-- Real-time scanning animation
-- Advanced vulnerability intelligence
-- User authentication dashboard
+- Automatic network discovery
+- Real-time vulnerability database integration
+- Risk visualization dashboards
+- Machine learning based risk prediction
+- Advanced phishing scenario simulation
 
 ---
 
 ## Author
 
-Mondeddu Sai Nikhil Reddy  
-ECE Student – RGUKT Nuzvid  
-Cybersecurity Enthusiast
+**Mondeddu Sai Nikhil Reddy**  
+RGUKT Nuzvid

@@ -1,23 +1,23 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 import socket
 import time
 import io
+import sqlite3
 
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 from scanner import scan_target
 from breach_check import check_email_breach
-from phishing_test import phishing_behavior
+from phishing_engine import generate_phishing_scenario, evaluate_phishing_behavior
 from risk_engine import calculate_risk
 
-from database import init_db, save_scan, get_history, get_report
+from database import init_db, save_scan, get_history
 
 app = Flask(__name__)
 
 latest_result = None
 
-# Initialize database
 init_db()
 
 
@@ -49,6 +49,18 @@ def home():
     return render_template("home.html")
 
 
+@app.route("/get-ip")
+def get_ip():
+
+    try:
+        hostname = socket.gethostname()
+        ip = socket.gethostbyname(hostname)
+    except:
+        ip = "127.0.0.1"
+
+    return jsonify({"ip": ip})
+
+
 @app.route("/scanner", methods=["GET", "POST"])
 def scanner():
 
@@ -58,7 +70,10 @@ def scanner():
 
         target_ip = request.form["ip"]
         email = request.form["email"]
-        phishing_choice = request.form["phishing"]
+
+        phishing_action = request.form.get("phishing_action", "ignore_email")
+
+        phishing_result = evaluate_phishing_behavior(phishing_action)
 
         start_time = time.time()
 
@@ -66,9 +81,7 @@ def scanner():
 
         breach_info = check_email_breach(email)
 
-        phishing = phishing_behavior(phishing_choice)
-
-        score = calculate_risk(ports, breach_info["breached"], phishing)
+        score = calculate_risk(ports, breach_info["breached"], phishing_result)
 
         end_time = time.time()
 
@@ -79,7 +92,7 @@ def scanner():
         result = {
             "score": score,
             "breach": breach_info,
-            "phishing": phishing,
+            "phishing": phishing_result,
             "ports": ports,
             "target": target_ip,
             "port_count": len(ports),
@@ -93,7 +106,13 @@ def scanner():
 
         return render_template("report.html", result=result)
 
-    return render_template("scanner.html", ip=get_local_ip())
+    phishing_scenario = generate_phishing_scenario()
+
+    return render_template(
+        "scanner.html",
+        ip=get_local_ip(),
+        phishing=phishing_scenario
+    )
 
 
 @app.route("/history")
@@ -104,93 +123,42 @@ def history():
     return render_template("history.html", history=history_data)
 
 
-# Download report for latest scan
+# -------------------------------
+# Download latest scan report
+# -------------------------------
+
 @app.route("/download_report")
 def download_report():
 
     global latest_result
 
-    buffer = io.BytesIO()
+    if latest_result is None:
+        return "No scan available"
 
-    p = canvas.Canvas(buffer, pagesize=letter)
-
-    y = 750
-
-    p.setFont("Helvetica-Bold", 16)
-    p.drawString(200, y, "Cyber Security Scan Report")
-
-    y -= 40
-
-    p.setFont("Helvetica", 12)
-
-    p.drawString(50, y, f"Target: {latest_result['target']}")
-    y -= 20
-
-    p.drawString(50, y, f"Risk Score: {latest_result['score']}")
-    y -= 20
-
-    p.drawString(50, y, f"Threat Level: {latest_result['threat_level']}")
-    y -= 20
-
-    breach = latest_result["breach"]
-
-    p.drawString(50, y, f"Email Breach: {breach['breached']}")
-    y -= 20
-
-    p.drawString(50, y, f"Breach Source: {breach['source']}")
-    y -= 20
-
-    p.drawString(50, y, f"Breaches Found: {breach['count']}")
-    y -= 20
-
-    p.drawString(50, y, f"Exposed Data: {breach['data']}")
-    y -= 20
-
-    p.drawString(50, y, f"Phishing Behaviour: {latest_result['phishing']}")
-    y -= 20
-
-    p.drawString(50, y, f"Scan Duration: {latest_result['scan_time']} seconds")
-
-    y -= 40
-
-    p.setFont("Helvetica-Bold", 14)
-    p.drawString(50, y, "Detected Ports")
-
-    y -= 20
-
-    p.setFont("Helvetica", 10)
-
-    for port in latest_result["ports"]:
-
-        text = f"Port {port['port']} - {port['service']} | Severity: {port['severity']}"
-        p.drawString(50, y, text)
-
-        y -= 15
-
-        if y < 50:
-            p.showPage()
-            y = 750
-
-    p.save()
-
-    buffer.seek(0)
-
-    return send_file(
-        buffer,
-        as_attachment=True,
-        download_name="cyber_security_report.pdf",
-        mimetype="application/pdf"
-    )
+    return generate_pdf(latest_result)
 
 
-# Download report from scan history
-@app.route("/download-report/<int:scan_id>")
+# -------------------------------
+# Download report from history
+# -------------------------------
+from database import get_report
+
+@app.route("/download_report/<int:scan_id>")
 def download_history_report(scan_id):
 
     result = get_report(scan_id)
 
-    if not result:
-        return "Report not found"
+    if result is None:
+        return "Scan not found"
+
+    return generate_pdf(result)
+
+
+# -------------------------------
+# PDF generator
+# -------------------------------
+
+def generate_pdf(result):
 
     buffer = io.BytesIO()
 
@@ -231,27 +199,27 @@ def download_history_report(scan_id):
     p.drawString(50, y, f"Phishing Behaviour: {result['phishing']}")
     y -= 20
 
-    p.drawString(50, y, f"Total Open Ports: {result['port_count']}")
+    p.drawString(50, y, f"Scan Duration: {result['scan_time']} seconds")
 
-    y -= 40
+    y -= 30
 
-    p.setFont("Helvetica-Bold", 14)
-    p.drawString(50, y, "Detected Ports")
+    if result["ports"]:
 
-    y -= 20
+        p.drawString(50, y, "Detected Ports:")
 
-    p.setFont("Helvetica", 10)
+        y -= 20
 
-    for port in result["ports"]:
+        for port in result["ports"]:
 
-        text = f"Port {port['port']} - {port['service']} | Severity: {port['severity']}"
-        p.drawString(50, y, text)
+            text = f"Port {port['port']} - {port['service']} | Severity: {port['severity']}"
 
-        y -= 15
+            p.drawString(60, y, text)
 
-        if y < 50:
-            p.showPage()
-            y = 750
+            y -= 15
+
+            if y < 50:
+                p.showPage()
+                y = 750
 
     p.save()
 
@@ -260,7 +228,7 @@ def download_history_report(scan_id):
     return send_file(
         buffer,
         as_attachment=True,
-        download_name=f"scan_{scan_id}_report.pdf",
+        download_name="cyber_security_report.pdf",
         mimetype="application/pdf"
     )
 

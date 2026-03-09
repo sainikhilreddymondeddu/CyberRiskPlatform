@@ -97,22 +97,32 @@ font-weight:600;
 
 <tr>
 
-<td>{{scan[0]}}</td>
-<td>{{scan[1]}}</td>
-<td>{{scan[2]}}</td>
+<td>{{ scan[0] }}</td>
+<td>{{ scan[1] }}</td>
+<td>{{ scan[2] }}</td>
 
-<td class="{{scan[3]|lower}}">
-{{scan[3]}}
+<td class="{{ scan[3]|lower }}">
+{{ scan[3] }}
 </td>
 
-<td>{{scan[4]}}</td>
-<td>{{scan[5]}}</td>
-<td>{{scan[6]}}</td>
-<td>{{scan[7]}}</td>
+<td>{{ scan[4] }}</td>
+
+<td>
+{% if scan[5] == "Yes" %}
+<span style="color:#ef4444;font-weight:600;">Breached</span>
+{% else %}
+<span style="color:#4ade80;font-weight:600;">Safe</span>
+{% endif %}
+</td>
+
+<td>{{ scan[6] }}</td>
+
+<td>{{ scan[7] }}</td>
 
 <td>
 
-<a href="/download-report/{{scan[0]}}" class="btn btn-download btn-sm">
+<a href="/download_report/{{ scan[0] }}"
+class="btn btn-download btn-sm">
 Download
 </a>
 
@@ -139,5 +149,4 @@ Back to Home
 </div>
 
 </body>
-
 </html>

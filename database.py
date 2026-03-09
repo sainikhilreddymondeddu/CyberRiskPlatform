@@ -12,7 +12,6 @@ def init_db():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS scans (
-
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         target TEXT,
         risk_score INTEGER,
@@ -22,7 +21,6 @@ def init_db():
         phishing TEXT,
         result_json TEXT,
         scan_time TEXT
-
     )
     """)
 
@@ -37,6 +35,8 @@ def save_scan(result):
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    breach_status = "Yes" if result["breach"]["breached"] else "No"
+
     cursor.execute("""
     INSERT INTO scans(
         target,
@@ -48,15 +48,14 @@ def save_scan(result):
         result_json,
         scan_time
     )
-
-    VALUES(?,?,?,?,?,?,?,?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, (
 
         result["target"],
         result["score"],
         result["threat_level"],
         result["port_count"],
-        "Yes" if result["breach"]["breached"] else "No",
+        breach_status,
         result["phishing"],
         json.dumps(result),
         current_time
@@ -70,6 +69,8 @@ def save_scan(result):
 def get_history():
 
     conn = sqlite3.connect(DB_NAME)
+
+    # IMPORTANT → return tuples
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -87,6 +88,7 @@ def get_history():
     """)
 
     rows = cursor.fetchall()
+
     conn.close()
 
     return rows
